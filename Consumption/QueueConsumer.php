@@ -14,6 +14,7 @@ use Enqueue\Consumption\Context\ProcessorException;
 use Enqueue\Consumption\Context\Start;
 use Enqueue\Consumption\Exception\InvalidArgumentException;
 use Enqueue\Consumption\Exception\LogicException;
+use function get_class;
 use Interop\Queue\Consumer;
 use Interop\Queue\Context as InteropContext;
 use Interop\Queue\Exception\SubscriptionConsumerNotSupportedException;
@@ -316,7 +317,7 @@ final class QueueConsumer implements QueueConsumerInterface
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $prev = $e;
             do {
                 if ($exception === $wrapper = $prev) {
@@ -324,7 +325,7 @@ final class QueueConsumer implements QueueConsumerInterface
                 }
             } while ($prev = $wrapper->getPrevious());
 
-            $prev = new \ReflectionProperty($wrapper instanceof \Exception ? \Exception::class : \Error::class, 'previous');
+            $prev = new \ReflectionProperty(get_class($wrapper), 'previous');
             $prev->setAccessible(true);
             $prev->setValue($wrapper, $exception);
 
